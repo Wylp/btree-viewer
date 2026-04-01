@@ -1,0 +1,135 @@
+<h2>Layout da Página</h2>
+<p class="subtitle">Como distribuir os elementos na tela?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Layout A mockup -->
+      <div style="display: flex; flex-direction: column; gap: 8px; height: 220px;">
+        <div style="background: #16213e; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 12px;">
+          <span style="color: #e94560; font-weight: bold; font-size: 13px;">B-Tree Viewer</span>
+          <div style="display: flex; gap: 6px; margin-left: auto;">
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Grau: 3</div>
+            <div style="background: #e94560; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: white;">Inserir</div>
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Remover</div>
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Buscar</div>
+          </div>
+        </div>
+        <div style="flex: 1; background: #16213e; border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <!-- Tree visualization -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <div style="background: #e94560; border-radius: 4px; padding: 4px 12px; font-size: 11px; color: white;">10 | 20</div>
+            <div style="display: flex; gap: 40px;">
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">5</div>
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">15</div>
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">25 | 30</div>
+            </div>
+          </div>
+          <div style="position: absolute; bottom: 8px; right: 8px; display: flex; gap: 4px;">
+            <div style="background: #0f3460; border-radius: 3px; padding: 2px 6px; font-size: 9px; color: #a8b2d1;">&#9654;</div>
+            <div style="background: #0f3460; border-radius: 3px; padding: 2px 6px; font-size: 9px; color: #a8b2d1;">&#9658;|</div>
+          </div>
+        </div>
+        <div style="background: #16213e; border-radius: 6px; padding: 8px 12px; height: 40px;">
+          <div style="font-size: 10px; color: #e94560; margin-bottom: 2px;">Passo 3/5: Split do nó</div>
+          <div style="font-size: 9px; color: #a8b2d1;">Nó [5, 10, 15] excedeu o máximo. Promovendo 10 para o pai.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Toolbar + Canvas + Log embaixo</h3>
+      <p>Controles no topo, árvore ocupa a maior parte, painel de explicação fixo embaixo. Simples e vertical.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Layout B mockup -->
+      <div style="display: flex; gap: 8px; height: 220px;">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: #16213e; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #e94560; font-weight: bold; font-size: 13px;">B-Tree Viewer</span>
+            <div style="display: flex; gap: 6px; margin-left: auto;">
+              <div style="background: #e94560; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: white;">Inserir</div>
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Remover</div>
+            </div>
+          </div>
+          <div style="flex: 1; background: #16213e; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+              <div style="background: #e94560; border-radius: 4px; padding: 4px 12px; font-size: 11px; color: white;">10 | 20</div>
+              <div style="display: flex; gap: 30px;">
+                <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">5</div>
+                <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">15</div>
+                <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 140px; background: #16213e; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 10px; color: #e94560; font-weight: bold;">Passos</div>
+          <div style="font-size: 9px; color: #a8b2d1; background: #0f3460; border-radius: 3px; padding: 4px 6px;">1. Inserir 15</div>
+          <div style="font-size: 9px; color: #a8b2d1; background: #0f3460; border-radius: 3px; padding: 4px 6px;">2. Descer para filho</div>
+          <div style="font-size: 9px; color: white; background: #e94560; border-radius: 3px; padding: 4px 6px;">3. Split do nó</div>
+          <div style="font-size: 9px; color: #a8b2d1; background: #0f3460; border-radius: 3px; padding: 4px 6px;">4. Promover chave</div>
+          <div style="font-size: 9px; color: #535c73; background: #0d1b36; border-radius: 3px; padding: 4px 6px;">5. Finalizar</div>
+          <div style="margin-top: auto; display: flex; gap: 4px;">
+            <div style="background: #0f3460; border-radius: 3px; padding: 2px 6px; font-size: 9px; color: #a8b2d1; flex:1; text-align:center;">&#9664;</div>
+            <div style="background: #e94560; border-radius: 3px; padding: 2px 6px; font-size: 9px; color: white; flex:1; text-align:center;">&#9654;</div>
+            <div style="background: #0f3460; border-radius: 3px; padding: 2px 6px; font-size: 9px; color: #a8b2d1; flex:1; text-align:center;">&#9654;|</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Canvas + Sidebar de passos</h3>
+      <p>Árvore à esquerda, painel lateral direito com lista de passos navegável e controles de playback. Mais detalhado.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Layout C mockup -->
+      <div style="display: flex; flex-direction: column; gap: 8px; height: 220px;">
+        <div style="background: #16213e; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+          <span style="color: #e94560; font-weight: bold; font-size: 13px;">B-Tree Viewer</span>
+          <div style="margin-left: auto; display: flex; gap: 6px; align-items: center;">
+            <input style="background: #0f3460; border: 1px solid #1a3a6e; border-radius: 4px; padding: 3px 8px; font-size: 10px; color: white; width: 50px;" value="15" />
+            <div style="background: #e94560; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: white;">Inserir</div>
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Remover</div>
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Buscar</div>
+            <div style="width: 1px; height: 16px; background: #1a3a6e;"></div>
+            <div style="background: #0f3460; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: #a8b2d1;">Grau: 3</div>
+          </div>
+        </div>
+        <div style="flex: 1; background: #16213e; border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
+            <div style="background: #e94560; border-radius: 4px; padding: 5px 14px; font-size: 12px; color: white;">10 | 20</div>
+            <div style="display: flex; gap: 50px;">
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">5</div>
+              <div style="background: #e94560; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: white; box-shadow: 0 0 8px rgba(233,69,96,0.5);">15</div>
+              <div style="background: #0f3460; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #a8b2d1;">25 | 30</div>
+            </div>
+          </div>
+          <!-- Floating step indicator -->
+          <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(15,52,96,0.9); border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; gap: 4px;">
+              <div style="background: #1a3a6e; border-radius: 3px; padding: 2px 8px; font-size: 10px; color: #a8b2d1;">&#9664;</div>
+              <div style="background: #e94560; border-radius: 3px; padding: 2px 8px; font-size: 10px; color: white;">&#9654;</div>
+              <div style="background: #1a3a6e; border-radius: 3px; padding: 2px 8px; font-size: 10px; color: #a8b2d1;">&#9654;|</div>
+            </div>
+            <div style="flex: 1; height: 3px; background: #1a3a6e; border-radius: 2px; position: relative;">
+              <div style="width: 60%; height: 100%; background: #e94560; border-radius: 2px;"></div>
+            </div>
+            <div style="font-size: 9px; color: #a8b2d1;">3/5</div>
+            <div style="width: 1px; height: 14px; background: #1a3a6e;"></div>
+            <div style="font-size: 9px; color: #e94560; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Inserindo 15 no nó [12, 18]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Canvas fullscreen + Overlay flutuante</h3>
+      <p>Árvore ocupa tudo. Controles no topo, barra de progresso flutuante embaixo com play/pause e descrição do passo. Máximo espaço pra árvore.</p>
+    </div>
+  </div>
+</div>

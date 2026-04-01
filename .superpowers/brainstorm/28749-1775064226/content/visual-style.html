@@ -1,0 +1,117 @@
+<h2>Estilo Visual</h2>
+<p class="subtitle">Qual a vibe que você quer pro visualizador?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #0d1117;">
+      <!-- Dark Developer -->
+      <div style="display: flex; gap: 8px; height: 180px;">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #58a6ff; font-weight: bold; font-size: 12px; font-family: monospace;">B-Tree</span>
+            <div style="margin-left: auto; display: flex; gap: 4px;">
+              <div style="background: #238636; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: white;">insert()</div>
+              <div style="background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #8b949e;">delete()</div>
+              <div style="background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #8b949e;">search()</div>
+            </div>
+          </div>
+          <div style="flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
+              <div style="background: #1f6feb; border-radius: 4px; padding: 4px 14px; font-size: 11px; color: white; font-family: monospace;">10 | 20</div>
+              <div style="display: flex; gap: 30px;">
+                <div style="background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 3px 10px; font-size: 10px; color: #c9d1d9; font-family: monospace;">5</div>
+                <div style="background: #238636; border-radius: 4px; padding: 3px 10px; font-size: 10px; color: white; font-family: monospace; box-shadow: 0 0 8px rgba(35,134,54,0.4);">15</div>
+                <div style="background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 3px 10px; font-size: 10px; color: #c9d1d9; font-family: monospace;">25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 120px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-size: 9px; color: #58a6ff; font-family: monospace;">// steps</div>
+          <div style="font-size: 8px; color: #8b949e; background: #21262d; border-radius: 3px; padding: 3px 5px; font-family: monospace;">1. find node</div>
+          <div style="font-size: 8px; color: white; background: #238636; border-radius: 3px; padding: 3px 5px; font-family: monospace;">2. insert key</div>
+          <div style="font-size: 8px; color: #484f58; background: #0d1117; border-radius: 3px; padding: 3px 5px; font-family: monospace;">3. check overflow</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Dark Developer</h3>
+      <p>Tema escuro estilo GitHub/VS Code. Fonte monospace, verde pra sucesso, azul pra destaque. Vibe de ferramenta de dev.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <!-- Clean Educational -->
+      <div style="display: flex; gap: 8px; height: 180px;">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <span style="color: #111; font-weight: 700; font-size: 12px;">B-Tree Viewer</span>
+            <div style="margin-left: auto; display: flex; gap: 4px;">
+              <div style="background: #6366f1; border-radius: 6px; padding: 3px 10px; font-size: 9px; color: white;">Inserir</div>
+              <div style="background: #f3f4f6; border-radius: 6px; padding: 3px 10px; font-size: 9px; color: #374151;">Remover</div>
+              <div style="background: #f3f4f6; border-radius: 6px; padding: 3px 10px; font-size: 9px; color: #374151;">Buscar</div>
+            </div>
+          </div>
+          <div style="flex: 1; background: white; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
+              <div style="background: #6366f1; border-radius: 8px; padding: 6px 16px; font-size: 12px; color: white; font-weight: 600;">10 | 20</div>
+              <div style="display: flex; gap: 30px;">
+                <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px 12px; font-size: 11px; color: #374151;">5</div>
+                <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 8px; padding: 4px 12px; font-size: 11px; color: #065f46; font-weight: 600;">15</div>
+                <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px 12px; font-size: 11px; color: #374151;">25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 120px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <div style="font-size: 10px; color: #6366f1; font-weight: 600;">Passos</div>
+          <div style="font-size: 9px; color: #6b7280; background: #f9fafb; border-radius: 4px; padding: 4px 6px;">1. Localizar nó</div>
+          <div style="font-size: 9px; color: white; background: #6366f1; border-radius: 4px; padding: 4px 6px;">2. Inserir chave</div>
+          <div style="font-size: 9px; color: #d1d5db; background: #f9fafb; border-radius: 4px; padding: 4px 6px;">3. Verificar overflow</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Clean Educational</h3>
+      <p>Tema claro, clean, com bordas suaves e cores vibrantes nos destaques. Vibe de plataforma educacional moderna (Notion/Linear).</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);">
+      <!-- Neon/Cyberpunk -->
+      <div style="display: flex; gap: 8px; height: 180px;">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00f5ff; font-weight: bold; font-size: 12px; text-shadow: 0 0 10px rgba(0,245,255,0.5);">B-Tree</span>
+            <div style="margin-left: auto; display: flex; gap: 4px;">
+              <div style="background: rgba(168,85,247,0.3); border: 1px solid #a855f7; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #c084fc;">Inserir</div>
+              <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #94a3b8;">Remover</div>
+            </div>
+          </div>
+          <div style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
+              <div style="background: rgba(168,85,247,0.3); border: 1px solid #a855f7; border-radius: 6px; padding: 5px 14px; font-size: 11px; color: #e9d5ff; box-shadow: 0 0 15px rgba(168,85,247,0.3);">10 | 20</div>
+              <div style="display: flex; gap: 30px;">
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 10px; font-size: 10px; color: #94a3b8;">5</div>
+                <div style="background: rgba(0,245,255,0.15); border: 1px solid #00f5ff; border-radius: 6px; padding: 3px 10px; font-size: 10px; color: #00f5ff; box-shadow: 0 0 12px rgba(0,245,255,0.3);">15</div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 10px; font-size: 10px; color: #94a3b8;">25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 120px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-size: 9px; color: #00f5ff; text-shadow: 0 0 8px rgba(0,245,255,0.5);">STEPS</div>
+          <div style="font-size: 8px; color: #64748b; background: rgba(255,255,255,0.03); border-radius: 3px; padding: 3px 5px;">1. find node</div>
+          <div style="font-size: 8px; color: #e9d5ff; background: rgba(168,85,247,0.3); border: 1px solid rgba(168,85,247,0.3); border-radius: 3px; padding: 3px 5px; box-shadow: 0 0 6px rgba(168,85,247,0.2);">2. insert</div>
+          <div style="font-size: 8px; color: #475569; background: rgba(255,255,255,0.02); border-radius: 3px; padding: 3px 5px;">3. check</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Neon Cyberpunk</h3>
+      <p>Fundo escuro com gradiente, glassmorphism, glows neon em cyan e roxo. Visual impactante e moderno.</p>
+    </div>
+  </div>
+</div>
