@@ -148,8 +148,52 @@ export class BTree {
     );
   }
 
-  search(_key: number): Step[] {
-    return [];
+  search(key: number): Step[] {
+    const steps: Step[] = [];
+
+    if (this.root === null) {
+      steps.push({
+        type: 'not-found',
+        nodeId: 'empty',
+        key,
+        description: `Árvore vazia. Chave ${key} não encontrada.`,
+        treeSnapshot: createNode(true),
+      });
+      return steps;
+    }
+
+    this.searchNode(this.root, key, steps);
+    return steps;
+  }
+
+  private searchNode(node: BTreeNode, key: number, steps: Step[]): void {
+    steps.push(
+      this.step('compare', node.id, key, `Comparando chave ${key} com as chaves do nó [${node.keys.join(', ')}].`)
+    );
+
+    let i = 0;
+    while (i < node.keys.length && key > node.keys[i]) {
+      i++;
+    }
+
+    if (i < node.keys.length && key === node.keys[i]) {
+      steps.push(
+        this.step('found', node.id, key, `Chave ${key} encontrada no nó.`)
+      );
+      return;
+    }
+
+    if (node.isLeaf) {
+      steps.push(
+        this.step('not-found', node.id, key, `Chave ${key} não encontrada na árvore.`)
+      );
+      return;
+    }
+
+    steps.push(
+      this.step('descend', node.id, key, `Descendo para o filho ${i} em busca de ${key}.`)
+    );
+    this.searchNode(node.children[i], key, steps);
   }
 
   delete(key: number): Step[] {
@@ -350,7 +394,21 @@ export class BTree {
     );
   }
 
-  bulkInsert(_keys: number[]): Step[] {
-    return [];
+  bulkInsert(keys: number[]): Step[] {
+    const allSteps: Step[] = [];
+    for (let i = 0; i < keys.length; i++) {
+      if (i > 0) {
+        allSteps.push({
+          type: 'separator',
+          nodeId: this.root?.id ?? '',
+          key: keys[i],
+          description: `Próxima inserção: ${keys[i]}`,
+          treeSnapshot: this.root ? cloneTree(this.root) : createNode(true),
+        });
+      }
+      const steps = this.insert(keys[i]);
+      allSteps.push(...steps);
+    }
+    return allSteps;
   }
 }
