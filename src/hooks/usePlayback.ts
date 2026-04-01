@@ -24,6 +24,16 @@ export function usePlayback({ totalSteps, defaultSpeed = 800 }: UsePlaybackOptio
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(defaultSpeed);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [prevTotalSteps, setPrevTotalSteps] = useState(totalSteps);
+
+  // Reset when totalSteps changes (new operation started)
+  if (prevTotalSteps !== totalSteps) {
+    setPrevTotalSteps(totalSteps);
+    setCurrentIndex(0);
+    if (totalSteps > 0) {
+      setIsPlaying(true);
+    }
+  }
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
@@ -77,13 +87,6 @@ export function usePlayback({ totalSteps, defaultSpeed = 800 }: UsePlaybackOptio
     }
     return clearTimer;
   }, [isPlaying, speed, totalSteps, clearTimer]);
-
-  useEffect(() => {
-    setCurrentIndex(0);
-    if (totalSteps > 0) {
-      setIsPlaying(true);
-    }
-  }, [totalSteps]);
 
   return { currentIndex, isPlaying, speed, play, pause, next, prev, first, last, goTo, setSpeed };
 }
