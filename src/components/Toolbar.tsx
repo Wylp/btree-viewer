@@ -62,7 +62,7 @@ export function Toolbar({ order, onInsert, onDelete, onSearch, onBulkInsert, onO
     width: 70,
   };
 
-  const btnStyle = (color = colors.bgTertiary, textColor = colors.textSecondary): React.CSSProperties => ({
+  const btnStyle = (color: string = colors.bgTertiary, textColor: string = colors.textSecondary): React.CSSProperties => ({
     background: color,
     border: `1px solid ${color === colors.bgTertiary ? colors.border : color}`,
     borderRadius: 4,
