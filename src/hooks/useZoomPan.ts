@@ -25,7 +25,7 @@ export function useZoomPan(): UseZoomPanReturn {
 
   const onWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const delta = e.deltaY > 0 ? 0.95 : 1.05;
     setState(s => ({
       ...s,
       scale: Math.max(0.1, Math.min(5, s.scale * delta)),

@@ -1,6 +1,12 @@
 import type { BTreeNode, Step, StepType } from './types';
 import { createNode, cloneTree } from './BTreeNode';
 
+interface SplitResult {
+  left: BTreeNode;
+  right: BTreeNode;
+  promotedKey: number;
+}
+
 export class BTree {
   order: number;
   root: BTreeNode | null = null;
@@ -11,6 +17,10 @@ export class BTree {
 
   maxKeys(): number {
     return this.order - 1;
+  }
+
+  minKeys(): number {
+    return Math.ceil(this.order / 2) - 1;
   }
 
   private step(
@@ -28,6 +38,19 @@ export class BTree {
     };
   }
 
+  containsKey(node: BTreeNode, key: number): boolean {
+    for (const k of node.keys) {
+      if (k === key) return true;
+    }
+    if (node.isLeaf) return false;
+    for (const child of node.children) {
+      if (this.containsKey(child, key)) return true;
+    }
+    return false;
+  }
+
+  // --- INSERT (bottom-up split, snapshots only when tree is consistent) ---
+
   insert(key: number): Step[] {
     const steps: Step[] = [];
 
@@ -40,7 +63,6 @@ export class BTree {
       return steps;
     }
 
-    // Check for duplicate
     if (this.containsKey(this.root, key)) {
       steps.push(
         this.step('found', this.root.id, key, `Chave ${key} já existe na árvore. Inserção ignorada.`)
@@ -48,105 +70,89 @@ export class BTree {
       return steps;
     }
 
-    // If root is full, split it
-    if (this.root.keys.length === this.maxKeys()) {
-      const oldRoot = this.root;
+    const result = this.insertIntoSubtree(this.root, key, steps);
+
+    if (result) {
       const newRoot = createNode(false);
-      newRoot.children.push(oldRoot);
+      newRoot.keys.push(result.promotedKey);
+      newRoot.children.push(result.left, result.right);
       this.root = newRoot;
-      this.splitChild(newRoot, 0, steps, key);
+      steps.push(
+        this.step('promote', newRoot.id, result.promotedKey,
+          `Nova raiz criada com chave ${result.promotedKey} após divisão.`)
+      );
     }
 
-    this.insertNonFull(this.root, key, steps);
     return steps;
   }
 
-  containsKey(node: BTreeNode, key: number): boolean {
-    for (const k of node.keys) {
-      if (k === key) return true;
-    }
-    if (node.isLeaf) return false;
-    for (const child of node.children) {
-      if (this.containsKey(child, key)) return true;
-    }
-    return false;
-  }
-
-  insertNonFull(node: BTreeNode, key: number, steps: Step[]): void {
+  private insertIntoSubtree(node: BTreeNode, key: number, steps: Step[]): SplitResult | null {
     if (node.isLeaf) {
-      // Insert in sorted position
-      let i = node.keys.length - 1;
-      while (i >= 0 && node.keys[i] > key) {
-        i--;
-      }
-      node.keys.splice(i + 1, 0, key);
+      let pos = 0;
+      while (pos < node.keys.length && node.keys[pos] < key) pos++;
+      node.keys.splice(pos, 0, key);
+
+      // Snapshot: leaf might be overfull but tree is fully connected
       steps.push(
         this.step('insert', node.id, key, `Inserindo ${key} na folha.`)
       );
-      return;
-    }
 
-    // Find correct child index
-    let i = node.keys.length - 1;
-    while (i >= 0 && node.keys[i] > key) {
-      i--;
-    }
-    i++; // child index
-
-    steps.push(
-      this.step('descend', node.id, key, `Descendo para o filho ${i} em busca da posição de ${key}.`)
-    );
-
-    const child = node.children[i];
-
-    if (child.keys.length === this.maxKeys()) {
-      this.splitChild(node, i, steps, key);
-      // After split, determine which of the two children to descend into
-      if (node.keys[i] < key) {
-        this.insertNonFull(node.children[i + 1], key, steps);
-      } else {
-        this.insertNonFull(node.children[i], key, steps);
+      if (node.keys.length > this.maxKeys()) {
+        // Split mechanically — no snapshot here (tree will be disconnected)
+        return this.splitNode(node);
       }
-    } else {
-      this.insertNonFull(child, key, steps);
-    }
-  }
-
-  splitChild(parent: BTreeNode, index: number, steps: Step[], triggerKey: number): void {
-    const fullChild = parent.children[index];
-    const midIndex = Math.floor(this.maxKeys() / 2);
-    const midKey = fullChild.keys[midIndex];
-
-    const rightNode = createNode(fullChild.isLeaf);
-    rightNode.keys = fullChild.keys.splice(midIndex + 1);
-    fullChild.keys.splice(midIndex, 1); // remove midKey from child
-
-    if (!fullChild.isLeaf) {
-      rightNode.children = fullChild.children.splice(midIndex + 1);
+      return null;
     }
 
-    // Insert midKey into parent at position index
-    parent.keys.splice(index, 0, midKey);
-    // Insert rightNode into parent's children at position index + 1
-    parent.children.splice(index + 1, 0, rightNode);
+    let childIdx = 0;
+    while (childIdx < node.keys.length && key > node.keys[childIdx]) childIdx++;
 
+    // Snapshot: tree is valid, showing descent
     steps.push(
-      this.step(
-        'split',
-        fullChild.id,
-        triggerKey,
-        `Nó cheio dividido. Chave ${midKey} promovida ao nó pai.`
-      )
+      this.step('descend', node.id, key,
+        `Descendo para o filho ${childIdx} em busca da posição de ${key}.`)
     );
-    steps.push(
-      this.step(
-        'promote',
-        parent.id,
-        midKey,
-        `Chave ${midKey} promovida ao pai após divisão.`
-      )
-    );
+
+    const result = this.insertIntoSubtree(node.children[childIdx], key, steps);
+
+    if (result) {
+      // Incorporate split result — reconnects the tree
+      node.keys.splice(childIdx, 0, result.promotedKey);
+      node.children[childIdx] = result.left;
+      node.children.splice(childIdx + 1, 0, result.right);
+
+      // Snapshot: tree is fully connected (this node might be overfull)
+      steps.push(
+        this.step('split', result.left.id, key,
+          `Nó cheio dividido. Chave ${result.promotedKey} promovida ao pai.`)
+      );
+
+      if (node.keys.length > this.maxKeys()) {
+        // Split mechanically — no snapshot (tree will be disconnected)
+        return this.splitNode(node);
+      }
+    }
+
+    return null;
   }
+
+  /** Mechanically splits an overfull node. Does NOT generate steps. */
+  private splitNode(node: BTreeNode): SplitResult {
+    const midIndex = Math.floor(node.keys.length / 2);
+    const midKey = node.keys[midIndex];
+
+    const rightNode = createNode(node.isLeaf);
+    rightNode.keys = node.keys.splice(midIndex + 1);
+    node.keys.splice(midIndex, 1);
+
+    if (!node.isLeaf) {
+      rightNode.children = node.children.splice(midIndex + 1);
+    }
+
+    return { left: node, right: rightNode, promotedKey: midKey };
+  }
+
+  // --- SEARCH ---
 
   search(key: number): Step[] {
     const steps: Step[] = [];
@@ -196,27 +202,31 @@ export class BTree {
     this.searchNode(node.children[i], key, steps);
   }
 
+  // --- DELETE (reactive bottom-up fixup) ---
+
   delete(key: number): Step[] {
     const steps: Step[] = [];
 
     if (this.root === null) {
-      const emptyNode = createNode(true);
       steps.push({
         type: 'not-found',
         nodeId: 'empty',
         key,
         description: `Árvore vazia. Chave ${key} não encontrada.`,
-        treeSnapshot: emptyNode,
+        treeSnapshot: createNode(true),
       });
       return steps;
     }
 
-    this.deleteFromNode(this.root, key, steps);
+    this.deleteFromSubtree(this.root, key, steps);
 
-    // Shrink tree if root is empty
     if (this.root.keys.length === 0) {
       if (this.root.children.length > 0) {
         this.root = this.root.children[0];
+        steps.push(
+          this.step('promote', this.root.id, key,
+            `Raiz vazia removida. Filho promovido a nova raiz.`)
+        );
       } else {
         this.root = null;
       }
@@ -225,36 +235,28 @@ export class BTree {
     return steps;
   }
 
-  private minKeys(): number {
-    return Math.ceil(this.order / 2) - 1;
-  }
-
-  private deleteFromNode(node: BTreeNode, key: number, steps: Step[]): void {
+  private deleteFromSubtree(node: BTreeNode, key: number, steps: Step[]): boolean {
     const idx = node.keys.indexOf(key);
 
     if (idx !== -1) {
       if (node.isLeaf) {
-        // Case 1: key is in a leaf — just remove it
         node.keys.splice(idx, 1);
         steps.push(
           this.step('delete', node.id, key, `Chave ${key} removida da folha.`)
         );
+        return node.keys.length < this.minKeys();
       } else {
-        // Case 2: key is in an internal node
-        this.deleteFromInternal(node, idx, key, steps);
+        return this.deleteFromInternal(node, idx, key, steps);
       }
-      return;
     }
 
-    // Case 3: key not found in this node
     if (node.isLeaf) {
       steps.push(
         this.step('not-found', node.id, key, `Chave ${key} não encontrada na árvore.`)
       );
-      return;
+      return false;
     }
 
-    // Find child index to descend into
     let childIdx = 0;
     while (childIdx < node.keys.length && key > node.keys[childIdx]) {
       childIdx++;
@@ -264,45 +266,28 @@ export class BTree {
       this.step('descend', node.id, key, `Descendo para o filho ${childIdx} para remover ${key}.`)
     );
 
-    // Ensure child has enough keys before descending
-    if (node.children[childIdx].keys.length <= this.minKeys()) {
-      this.fillChild(node, childIdx, steps, key);
-      // After fillChild, the tree may have changed — re-find child index
-      // since a merge may have reduced key count in node
-      if (childIdx > node.keys.length) {
-        childIdx = node.keys.length;
-      }
+    const underflow = this.deleteFromSubtree(node.children[childIdx], key, steps);
+    if (underflow) {
+      this.fixChild(node, childIdx, steps, key);
     }
 
-    this.deleteFromNode(node.children[childIdx], key, steps);
+    return node.keys.length < this.minKeys();
   }
 
-  private deleteFromInternal(node: BTreeNode, idx: number, key: number, steps: Step[]): void {
-    const minK = this.minKeys();
-    const leftChild = node.children[idx];
-    const rightChild = node.children[idx + 1];
+  private deleteFromInternal(node: BTreeNode, idx: number, key: number, steps: Step[]): boolean {
+    const pred = this.getPredecessor(node.children[idx]);
+    node.keys[idx] = pred;
+    steps.push(
+      this.step('delete', node.id, key,
+        `Chave ${key} substituída pelo predecessor ${pred} no nó interno.`)
+    );
 
-    if (leftChild.keys.length > minK) {
-      // Replace with in-order predecessor
-      const pred = this.getPredecessor(leftChild);
-      node.keys[idx] = pred;
-      steps.push(
-        this.step('delete', node.id, key, `Chave ${key} substituída pelo predecessor ${pred} no nó interno.`)
-      );
-      this.deleteFromNode(leftChild, pred, steps);
-    } else if (rightChild.keys.length > minK) {
-      // Replace with in-order successor
-      const succ = this.getSuccessor(rightChild);
-      node.keys[idx] = succ;
-      steps.push(
-        this.step('delete', node.id, key, `Chave ${key} substituída pelo sucessor ${succ} no nó interno.`)
-      );
-      this.deleteFromNode(rightChild, succ, steps);
-    } else {
-      // Merge left, separator, and right
-      this.mergeChildren(node, idx, steps, key);
-      this.deleteFromNode(node.children[idx], key, steps);
+    const underflow = this.deleteFromSubtree(node.children[idx], pred, steps);
+    if (underflow) {
+      this.fixChild(node, idx, steps, key);
     }
+
+    return node.keys.length < this.minKeys();
   }
 
   private getPredecessor(node: BTreeNode): number {
@@ -313,81 +298,64 @@ export class BTree {
     return cur.keys[cur.keys.length - 1];
   }
 
-  private getSuccessor(node: BTreeNode): number {
-    let cur = node;
-    while (!cur.isLeaf) {
-      cur = cur.children[0];
-    }
-    return cur.keys[0];
-  }
-
-  private fillChild(node: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
-    const minK = this.minKeys();
-
-    if (idx > 0 && node.children[idx - 1].keys.length > minK) {
-      this.borrowFromPrev(node, idx, steps, triggerKey);
-    } else if (idx < node.children.length - 1 && node.children[idx + 1].keys.length > minK) {
-      this.borrowFromNext(node, idx, steps, triggerKey);
+  private fixChild(parent: BTreeNode, childIdx: number, steps: Step[], triggerKey: number): void {
+    if (childIdx > 0 && parent.children[childIdx - 1].keys.length > this.minKeys()) {
+      this.borrowFromPrev(parent, childIdx, steps, triggerKey);
+    } else if (childIdx < parent.children.length - 1 && parent.children[childIdx + 1].keys.length > this.minKeys()) {
+      this.borrowFromNext(parent, childIdx, steps, triggerKey);
     } else {
-      // Merge
-      if (idx < node.children.length - 1) {
-        this.mergeChildren(node, idx, steps, triggerKey);
+      if (childIdx < parent.children.length - 1) {
+        this.mergeChildren(parent, childIdx, steps, triggerKey);
       } else {
-        this.mergeChildren(node, idx - 1, steps, triggerKey);
+        this.mergeChildren(parent, childIdx - 1, steps, triggerKey);
       }
     }
   }
 
-  private borrowFromPrev(node: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
-    const child = node.children[idx];
-    const sibling = node.children[idx - 1];
+  private borrowFromPrev(parent: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
+    const child = parent.children[idx];
+    const sibling = parent.children[idx - 1];
 
-    // Shift child keys/children to the right
-    child.keys.unshift(node.keys[idx - 1]);
+    child.keys.unshift(parent.keys[idx - 1]);
     if (!sibling.isLeaf) {
       child.children.unshift(sibling.children.pop()!);
     }
 
-    // Move last key of sibling up to parent
-    node.keys[idx - 1] = sibling.keys.pop()!;
+    parent.keys[idx - 1] = sibling.keys.pop()!;
 
     steps.push(
       this.step('borrow', child.id, triggerKey, `Chave emprestada do irmão esquerdo para o nó filho (rotação direita).`)
     );
   }
 
-  private borrowFromNext(node: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
-    const child = node.children[idx];
-    const sibling = node.children[idx + 1];
+  private borrowFromNext(parent: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
+    const child = parent.children[idx];
+    const sibling = parent.children[idx + 1];
 
-    // Append parent key to child
-    child.keys.push(node.keys[idx]);
+    child.keys.push(parent.keys[idx]);
     if (!sibling.isLeaf) {
       child.children.push(sibling.children.shift()!);
     }
 
-    // Move first key of sibling up to parent
-    node.keys[idx] = sibling.keys.shift()!;
+    parent.keys[idx] = sibling.keys.shift()!;
 
     steps.push(
       this.step('borrow', child.id, triggerKey, `Chave emprestada do irmão direito para o nó filho (rotação esquerda).`)
     );
   }
 
-  private mergeChildren(node: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
-    const leftChild = node.children[idx];
-    const rightChild = node.children[idx + 1];
-    const separatorKey = node.keys[idx];
+  private mergeChildren(parent: BTreeNode, idx: number, steps: Step[], triggerKey: number): void {
+    const leftChild = parent.children[idx];
+    const rightChild = parent.children[idx + 1];
+    const separatorKey = parent.keys[idx];
 
-    // Merge: left ++ separator ++ right
     leftChild.keys.push(separatorKey, ...rightChild.keys);
     if (!leftChild.isLeaf) {
       leftChild.children.push(...rightChild.children);
     }
 
-    // Remove separator from parent and right child pointer
-    node.keys.splice(idx, 1);
-    node.children.splice(idx + 1, 1);
+    parent.keys.splice(idx, 1);
+    parent.children.splice(idx + 1, 1);
 
     steps.push(
       this.step('merge', leftChild.id, triggerKey, `Nós mesclados com a chave separadora ${separatorKey} do pai.`)

@@ -59,7 +59,7 @@ export function Toolbar({ order, onInsert, onDelete, onSearch, onBulkInsert, onO
     fontSize: 13,
     fontFamily: 'var(--font-mono)',
     outline: 'none',
-    width: 70,
+    width: 120,
   };
 
   const btnStyle = (color: string = colors.bgTertiary, textColor: string = colors.textSecondary): React.CSSProperties => ({
@@ -129,8 +129,14 @@ export function Toolbar({ order, onInsert, onDelete, onSearch, onBulkInsert, onO
         onChange={(e) => handleOrderChange(Number(e.target.value))}
         style={{
           ...inputStyle,
-          width: 50,
+          width: 56,
           cursor: 'pointer',
+          appearance: 'none',
+          WebkitAppearance: 'none',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b949e'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 6px center',
+          paddingRight: 22,
         }}
       >
         {[3, 4, 5, 6, 7].map(n => (
